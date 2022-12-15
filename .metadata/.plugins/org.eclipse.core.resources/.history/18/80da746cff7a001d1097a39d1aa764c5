@@ -1,0 +1,12 @@
+spring.datasource.url=jdbc:postgresql://172.17.0.4:5432/dataservice
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+spring.application.name=data-service
+server.port=8760
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
+spring.cloud.loadbalancer.ribbon.enabled=false
+eureka.instance.preferIpAddress=true
+eureka.client.serviceUrl.defaultZone = http://localhost:8671/eureka/
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=create

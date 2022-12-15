@@ -1,0 +1,37 @@
+package com.imd.controller;
+
+import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import model.Loja;
+
+@RestController
+@RequestMapping("/venda")
+public class VendaController {
+	@GetMapping("{id}")
+	public ResponseEntity<Optional<Loja>> getLoja(@PathVariable long id) {
+		
+		
+	}
+	
+	@PostMapping
+	public ResponseEntity<Loja> inserirLoja(@RequestBody Loja prod) {
+	}
+	
+	@PutMapping
+	public ResponseEntity<Loja> atualizarLoja(@RequestBody Loja prod) {
+	}
+	
+	@DeleteMapping("{id}")
+	public ResponseEntity<Loja> removerLoja(@PathVariable long id) {
+	}
+}

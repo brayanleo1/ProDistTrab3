@@ -1,0 +1,19 @@
+package com.imd.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import model.Loja;
+
+@Service
+public class VendaService {
+
+	public String desempacotar(long lojaId, long pacoteId) {
+		RestTemplate resp = new RestTemplate();
+		Loja loja = resp.getForEntity("http://localhost:8780/loja/{lojaId}", Loja.class);
+		return "Desempacotado com sucesso";
+	}
+
+
+
+}

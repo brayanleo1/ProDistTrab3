@@ -1,0 +1,56 @@
+package com.imd.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import model.Fabrica;
+import model.Loja;
+import model.Pacote;
+import model.Produto;
+
+@Service
+public class ProducaoService {
+
+	public Pacote empacotar(long fabricaId, long endereco) {
+		RestTemplate resp = new RestTemplate();
+		Fabrica fabrica = resp.getForEntity("http://localhost:8780/fabrica/"+fabricaId, Fabrica.class).getBody();
+		List<Produto> l = fabrica.getFabricados();
+		Pacote pacote = new Pacote();
+		pacote.setEnd(endereco);
+		pacote.setProdutos(l);
+		Pacote pac = resp.postForEntity("http://localhost:8780/pacote/", pacote, Pacote.class).getBody();
+		l.clear();
+		fabrica.getPacotes().add(pacote);
+		resp.put("http://localhost:8780/fabrica/", fabrica);
+		return pacote;
+	}
+	
+	public List<Produto> fabricar(long fabricaId, Produto produto) {
+		RestTemplate resp = new RestTemplate();
+		Fabrica fabrica = resp.getForEntity("http://localhost:8780/fabrica/"+fabricaId, Fabrica.class).getBody();
+		Produto newProduto = resp.postForEntity("http://localhost:8780/produto/",produto, Produto.class).getBody();
+		fabrica.getFabricados().add(newProduto);
+		resp.put("http://localhost:8780/fabrica/", fabrica);
+		return fabrica.getFabricados();
+	}
+	
+	public List<Produto> verFabricados(long fabricaId) {
+		RestTemplate resp = new RestTemplate();
+		Fabrica fabrica = resp.getForEntity("http://localhost:8780/fabrica/"+fabricaId, Fabrica.class).getBody();
+		return fabrica.getFabricados();
+	}
+	
+	public String enviar(long fabricaId, long pacoteId) {
+		RestTemplate resp = new RestTemplate();
+		Fabrica fabrica = resp.getForEntity("http://localhost:8780/fabrica/"+fabricaId, Fabrica.class).getBody();
+		Pacote pacote = resp.getForEntity("http://localhost:8780/pacote/"+pacoteId, Pacote.class).getBody();
+		fabrica.getPacotes().remove(pacote);
+		resp.put("http://localhost:8780/fabrica/", fabrica);
+		Loja loja = resp.getForEntity("http://localhost:8780/loja/"+pacote.getEnd(), Loja.class).getBody();
+		loja.getPacotes().add(pacote);
+		resp.put("http://localhost:8780/loja/",loja);
+		return "Enviado para "+loja.getNome()+" no endereço "+loja.getId()+" com sucesso";
+	}
+}

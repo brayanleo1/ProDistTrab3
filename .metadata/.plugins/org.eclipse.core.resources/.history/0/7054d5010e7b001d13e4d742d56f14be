@@ -1,0 +1,50 @@
+package com.imd.controller;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.imd.model.Produto;
+import com.imd.repository.PacoteRepository;
+
+@RestController
+@RequestMapping("/pacote")
+public class PacoteController {
+	@Autowired
+	private PacoteRepository pacoteRepository;
+	@GetMapping("{id}")
+	public ResponseEntity<Optional<Produto>> getProduto(@PathVariable long id) {
+		Optional<Produto> prod = pacoteRepository.findById(id);
+		if(prod != null) {
+			return ResponseEntity.ok(prod);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+		
+	}
+	
+	@PostMapping
+	public ResponseEntity<Produto> inserirProduto(@RequestBody Produto prod) {
+		return ResponseEntity.ok(pacoteRepository.save(prod));
+	}
+	
+	@PutMapping
+	public ResponseEntity<Produto> atualizarProduto(@RequestBody Produto prod) {
+		return ResponseEntity.ok(pacoteRepository.save(prod));
+	}
+	
+	@DeleteMapping("{id}")
+	public ResponseEntity<Produto> removerProduto(@PathVariable long id) {
+		pacoteRepository.deleteById(id);
+		return ResponseEntity.ok().build();
+	}
+}

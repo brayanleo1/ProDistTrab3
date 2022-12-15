@@ -1,0 +1,77 @@
+package com.imd.controller;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.imd.service.VendaService;
+
+import model.Loja;
+import model.Pacote;
+import model.Produto;
+
+@RestController
+@RequestMapping("/venda")
+public class ProducaoController {
+	@Autowired
+	private VendaService vendaService;
+	
+	@GetMapping("{id}")
+	public ResponseEntity<Loja> observarLoja(@PathVariable long id) {
+		RestTemplate resp = new RestTemplate();
+		return resp.getForEntity("http://localhost:8780/loja/"+id, Loja.class);
+	}
+	
+	@GetMapping("{id}")
+	public ResponseEntity<List<Produto>> observarPratileira(@PathVariable long id) {
+		return ResponseEntity.ok(vendaService.verPratileira(id));
+	}
+	
+	@PostMapping
+	public ResponseEntity<Loja> construirLoja(@RequestBody Loja loja) {
+		RestTemplate resp = new RestTemplate();
+		return resp.postForEntity("http://localhost:8780/loja/", loja, Loja.class);
+	}
+	
+	@PutMapping("{lojaId}/{pacoteId}")
+	public ResponseEntity<List<Produto>> desempacotar(@PathVariable(name = "lojaId") long lojaId, @PathVariable(name = "pacoteId") long pacoteId) {
+		return ResponseEntity.ok(vendaService.desempacotar(lojaId, pacoteId));
+	}
+	
+	
+	@PutMapping("{id}")
+	public ResponseEntity<Loja> reformarLoja(@RequestBody Loja loja, @PathVariable long id) {
+		RestTemplate resp = new RestTemplate();
+		resp.put("http://localhost:8780/loja/"+id, loja);
+		return resp.getForEntity("http://localhost:8780/loja/"+id, Loja.class);
+	}
+	
+	@PutMapping("{produtoId}/{valor}")
+	public ResponseEntity<Produto> darPreco(@PathVariable(name = "produtoId") long produtoId, @PathVariable(name = "valor") double valor) {
+		return ResponseEntity.ok(vendaService.darPreco(produtoId, valor));
+	}
+	
+	@DeleteMapping("{lojaId}/{produtoId}")
+	public ResponseEntity<List<Produto>> vender(@PathVariable(name = "lojaId") long lojaId, @PathVariable(name = "produtoId") long produtoId) {
+		return ResponseEntity.ok(vendaService.vender(lojaId, produtoId));
+	}
+	
+	@DeleteMapping("{id}")
+	public ResponseEntity<String> destruirLoja(@PathVariable long id) {
+		RestTemplate resp = new RestTemplate();
+		resp.delete("http://localhost:8780/loja/"+id);
+		return ResponseEntity.ok("Destruida com sucesso");
+	}
+}

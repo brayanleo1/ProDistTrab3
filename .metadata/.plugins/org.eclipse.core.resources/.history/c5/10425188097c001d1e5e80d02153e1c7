@@ -1,0 +1,53 @@
+package com.imd.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import model.Loja;
+import model.Pacote;
+import model.Produto;
+
+@Service
+public class VendaService {
+
+	public List<Produto> desempacotar(long lojaId, long pacoteId) {
+		RestTemplate resp = new RestTemplate();
+		Loja loja = resp.getForEntity("http://localhost:8780/loja/"+lojaId, Loja.class).getBody();
+		Pacote pacote = resp.getForEntity("http://localhost:8780/pacote/"+pacoteId, Pacote.class).getBody();
+		List<Produto> l = loja.getPratileira();
+		for(Produto p : pacote.getProdutos()) {
+			l.add(p);
+		}
+		loja.getPacotes().remove(pacote);
+		resp.delete("http://localhost:8780/pacote/loja/"+pacote.getId());
+		resp.put("http://localhost:8780/loja/", loja);
+		resp.delete("http://localhost:8780/pacote/"+pacoteId);
+		return l;
+	}
+	
+	public List<Produto> vender(long lojaId, long produtoId) {
+		RestTemplate resp = new RestTemplate();
+		Loja loja = resp.getForEntity("http://localhost:8780/loja/"+lojaId, Loja.class).getBody();
+		Produto produto = resp.getForEntity("http://localhost:8780/produto/"+produtoId, Produto.class).getBody();
+		loja.getPratileira().remove(produto);
+		resp.put("http://localhost:8780/loja/", loja);
+		resp.delete("http://localhost:8780/produto/"+produtoId);
+		return loja.getPratileira();
+	}
+	
+	public Produto darPreco(long produtoId, double valor) {
+		RestTemplate resp = new RestTemplate();
+		Produto produto = resp.getForEntity("http://localhost:8780/produto/"+produtoId, Produto.class).getBody();
+		produto.setValor(valor);
+		resp.put("http://localhost:8780/produto/", produto);
+		return produto;
+	}
+	
+	public List<Produto> verPratileira(long lojaId) {
+		RestTemplate resp = new RestTemplate();
+		Loja loja = resp.getForEntity("http://localhost:8780/loja/"+lojaId, Loja.class).getBody();
+		return loja.getPratileira();
+	} 
+}

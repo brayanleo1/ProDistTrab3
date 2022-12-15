@@ -1,0 +1,75 @@
+package com.imd.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.imd.service.ProducaoService;
+
+import model.Fabrica;
+import model.Pacote;
+import model.Produto;
+
+@RestController
+@RequestMapping("/producao")
+public class ProducaoController {
+	@Autowired
+	private ProducaoService producaoService;
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<Fabrica> observarFabrica(@PathVariable long id) {
+		RestTemplate resp = new RestTemplate();
+		return resp.getForEntity("http://localhost:8780/fabrica/"+id, Fabrica.class);
+	}
+	
+	@GetMapping("observar/{id}")
+	public ResponseEntity<List<Produto>> observarFabricados(@PathVariable long id) {
+		return ResponseEntity.ok(producaoService.verFabricados(id));
+	}
+	
+	@PostMapping
+	public ResponseEntity<Fabrica> construirFabrica(@RequestBody Fabrica fabrica) {
+		RestTemplate resp = new RestTemplate();
+		return resp.postForEntity("http://localhost:8780/fabrica/", fabrica, Fabrica.class);
+	}
+	
+	@PostMapping("{id}")
+	public ResponseEntity<List<Produto>> fabricar(@PathVariable long id, @RequestBody Produto produto) {
+		return ResponseEntity.ok(producaoService.fabricar(id, produto));
+	}
+	
+	@PutMapping("empacotar/{fabricaId}/{endereco}")
+	public ResponseEntity<Pacote> empacotar(@PathVariable(name = "fabricaId") long fabricaId, @PathVariable(name = "endereco") long endereco) {
+		return ResponseEntity.ok(producaoService.empacotar(fabricaId, endereco));
+	}
+	
+	
+	@PutMapping("{id}")
+	public ResponseEntity<Fabrica> reformarFabrica(@RequestBody Fabrica fabrica, @PathVariable long id) {
+		RestTemplate resp = new RestTemplate();
+		resp.put("http://localhost:8780/fabrica/"+id, fabrica);
+		return resp.getForEntity("http://localhost:8780/fabrica/"+id, Fabrica.class);
+	}
+	
+	@PutMapping("{fabricaId}/{pacoteId}")
+	public ResponseEntity<String> enviar(@PathVariable(name = "fabricaId") long fabricaId, @PathVariable(name = "pacoteId") long pacoteId) {
+		return ResponseEntity.ok(producaoService.enviar(fabricaId, pacoteId));
+	}
+	
+	@DeleteMapping("{id}")
+	public ResponseEntity<String> destruirFabrica(@PathVariable long id) {
+		RestTemplate resp = new RestTemplate();
+		resp.delete("http://localhost:8780/fabrica/"+id);
+		return ResponseEntity.ok("Destruida com sucesso");
+	}
+}

@@ -1,0 +1,14 @@
+package com.imd.repository;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+import com.imd.model.Loja;
+
+@Repository
+public interface LojaRepository extends CrudRepository<Loja, Long> {
+
+	@Query(value = "DELETE FROM Loja_pacotes WHERE pacotes_id=?1", nativeQuery=true)
+    void deleteFromLoja(long id);
+}
